@@ -197,9 +197,39 @@ class Proxy
         )
 
     ###*
+     * Retrieves a list of available global functions.
+     *
+     * @param {string|null} path   The path to the file to examine. May be null if the source parameter is passed.
+     * @param {string|null} source The source code to search. May be null if a file is passed instead.
+     * @param {number}      offset The character offset into the file to examine.
+     * @param {boolean}     async
+     *
+     * @return {Promise|Object}
+    ###
+    getInvokedFunction: (path, source, offset, async = false) ->
+        if not path? and not source?
+            throw 'Either a path to a file or source code must be passed!'
+
+        if path?
+            parameter = '--source=' + path
+
+        else if not async
+            throw 'Passing direct file contents is only supported for asynchronous calls!'
+
+        else
+            parameter = '--stdin'
+
+        return @performRequest(
+            ['--invoked-function', '--database=' + @getIndexDatabasePath(), parameter, '--offset=' + offset],
+            async,
+            null,
+            source
+        )
+
+    ###*
      * Refreshes the specified file or folder. This method is asynchronous and will return immediately.
      *
-     * @param {string}      path                   The full path to the file  or folder to refresh.
+     * @param {string}      path                   The full path to the file or folder to refresh.
      * @param {string|null} source                 The source code of the file to index. May be null if a directory is
      *                                             passed instead.
      * @param {Callback}    progressStreamCallback A method to invoke each time progress streaming data is received.

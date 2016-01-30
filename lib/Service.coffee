@@ -87,6 +87,19 @@ class Service
         return @proxy.getClassInfo(className, async)
 
     ###*
+     * Retrieves a list of available global functions.
+     *
+     * @param {string|null} path   The path to the file to examine. May be null if the source parameter is passed.
+     * @param {string|null} source The source code to search. May be null if a file is passed instead.
+     * @param {number}      offset The character offset into the file to examine.
+     * @param {boolean}     async
+     *
+     * @return {Promise|Object}
+    ###
+    getInvokedFunction: (path, source, offset, async = false) ->
+        return @proxy.getInvokedFunction(path, source, offset, async)
+
+    ###*
      * Refreshes the specified file or folder. This method is asynchronous and will return immediately.
      *
      * @param {string}      path                   The full path to the file  or folder to refresh.
@@ -356,9 +369,11 @@ class Service
      * @example "$this->test(1, function () {},| 2);" (where the vertical bar denotes the cursor position) will yield
      *          ['$this', 'test'].
      *
-     * @return {Object|null} With elements 'callStack' (array) as well as 'argumentIndex' which denotes the argument in
-     *                       the parameter list the position is located at. Returns 'null' if not in a method or
-     *                       function call.
+     * @return {Promise} Resolves to an object with elements 'callStack' (array) as well as 'argumentIndex' which
+     *                   denotes the argument in the parameter list the position is located at. Returns 'null' if not
+     *                   in a method or function call.
     ###
     getInvocationInfoAt: (editor, bufferPosition) ->
-        return @parser.getInvocationInfoAt(editor, bufferPosition)
+        offset = editor.getBuffer().characterIndexForPosition(bufferPosition)
+
+        return @getInvokedFunction(null, editor.getBuffer().getText(), offset, true)

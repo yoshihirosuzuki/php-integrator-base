@@ -21,11 +21,12 @@ class Application
         $command = array_shift($arguments);
 
         $commands = [
-            '--class-list' => 'ClassList',
-            '--class-info' => 'ClassInfo',
-            '--functions'  => 'GlobalFunctions',
-            '--constants'  => 'GlobalConstants',
-            '--reindex'    => 'Reindex'
+            '--class-list'       => 'ClassList',
+            '--class-info'       => 'ClassInfo',
+            '--functions'        => 'GlobalFunctions',
+            '--constants'        => 'GlobalConstants',
+            '--reindex'          => 'Reindex',
+            '--invoked-function' => 'InvokedFunction'
         ];
 
         if (isset($commands[$command])) {
