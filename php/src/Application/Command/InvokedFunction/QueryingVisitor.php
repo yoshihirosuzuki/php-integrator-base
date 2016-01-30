@@ -259,7 +259,8 @@ class QueryingVisitor extends NodeVisitorAbstract
         ) {
             /** @var Node\Arg $arg */
             foreach ($this->callNode->args as $arg) {
-                if ($this->position >= $arg->getAttribute('endFilePos')) {
+                // NOTE: endFilePos === startFilePos for one-character arguments. Quirk?
+                if ($this->position > ($arg->getAttribute('endFilePos') + 1)) {
                     ++$argumentIndex;
                 }
             }
