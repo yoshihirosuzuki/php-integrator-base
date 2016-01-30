@@ -82,6 +82,6 @@ class InvokedFunction extends BaseCommand
             ]);
         }
 
-        return $this->outputJson(true, $constants);
+        return $this->outputJson(false, 'No invocation found!');
     }
 }
