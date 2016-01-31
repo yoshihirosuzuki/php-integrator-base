@@ -556,7 +556,7 @@ class Parser
     getVariableType: (editor, bufferPosition, name) ->
         element = name
 
-        if element.replace(/[\$][a-zA-Z0-9_]+/g, "").trim().length > 0
+        if element.replace(/\$[a-zA-Z0-9_]+/g, "").trim().length > 0
             return null
 
         if element.trim().length == 0
@@ -572,7 +572,7 @@ class Parser
             scanStartPosition = range.start
 
             # Check for a type annotation in the style of /** @var FooType $someVar */.
-            regexTypeAnnotation = ///\/\*\*\s*@var\s+(#{classRegexPart})\s+#{elementForRegex}\s*(\s.*)?\*\////
+            regexTypeAnnotation = ///\/\*\*\s*@var\s+(#{classRegexPart}(?:\[\])?)\s+#{elementForRegex}\s*(\s.*)?\*\////
 
             editor.getBuffer().backwardsScanInRange regexTypeAnnotation, [scanStartPosition, bufferPosition], (matchInfo) =>
                 bestMatch = @determineFullClassName(editor, matchInfo.match[1])
@@ -582,7 +582,7 @@ class Parser
             return bestMatch if bestMatch # An annotation is definitive.
 
             # Check for a type annotation in the style of /** @var $someVar FooType */.
-            regexReverseTypeAnnotation = ///\/\*\*\s*@var\s+#{elementForRegex}\s+(#{classRegexPart})\s*(\s.*)?\*\////
+            regexReverseTypeAnnotation = ///\/\*\*\s*@var\s+#{elementForRegex}\s+(#{classRegexPart}(?:\[\])?)\s*(\s.*)?\*\////
 
             editor.getBuffer().backwardsScanInRange regexReverseTypeAnnotation, [scanStartPosition, bufferPosition], (matchInfo) =>
                 bestMatch = @determineFullClassName(editor, matchInfo.match[1])
@@ -676,7 +676,7 @@ class Parser
 
                 matchInfo.stop()
 
-            # Check if we can find an instanceof
+            # Check if we can find an instanceof.
             regexInstanceof = ///if\s*\(\s*#{elementForRegex}\s+instanceof\s+(#{classRegexPart})\s*\)///g
 
             editor.getBuffer().backwardsScanInRange regexInstanceof, [scanStartPosition, bufferPosition], (matchInfo) =>
@@ -688,6 +688,25 @@ class Parser
 
                 matchInfo.stop()
 
+            # Check if we can find a foreach.
+            # foreach\s+\((\$[a-zA-Z0-9_]+)\s+as\s+(?:(?:\$[a-zA-Z0-9_]+)\s*=>)?\s*(\$[a-zA-Z0-9_]+)\)
+            regexForeach = ///(foreach\s+\(.+)\s+as\s+(?:(?:\$[a-zA-Z0-9_]+)\s*=>)?\s*(#{elementForRegex})\)///
+
+            editor.getBuffer().backwardsScanInRange regexForeach, [scanStartPosition, bufferPosition], (matchInfo) =>
+                return if editor.scopeDescriptorForBufferPosition(matchInfo.range.start).getScopeChain().indexOf('comment') != -1
+
+                scanStartPosition = matchInfo.range.end
+
+                position = matchInfo.range.start
+                position.column += matchInfo.match[1].length
+
+                callStack = @retrieveSanitizedCallStackAt(editor, position)
+                listType = @getResultingTypeFromCallStack(editor, bufferPosition, callStack)
+
+                if listType? and listType.endsWith('[]')
+                    bestMatch = listType.substr(0, listType.length - 2)
+
+                    matchInfo.stop()
 
             break if bestMatch
 

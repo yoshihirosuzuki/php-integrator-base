@@ -3,8 +3,17 @@
 * Minor performance improvements when resolving local class names from docblocks.
 * Indexing will now happen continuously (onDidStopChanging of the text buffer) instead of only on save.
 * Descriptions from base classes or base interfaces will now be inherited if no description is present for a child class.
+* Type inference has been added for arrays, e.g.:
+
+```php
+/** @var Foo[] $list */
+foreach ($list as $item) {
+    $item-> // Autocompletion will be provided for 'Foo'.
+}
+```
 
 ### Bugs fixed
+* Fixed docblocks with an empty throws tag causing the indexer to fail (Filter/Encrypt/Mcrypt.php in Zend 1 has one of these, apparently).
 * Fixed types not being properly inferred with the new keyword in combination with keywords such as `self`, `static` and `parent`, e.g. `$foo = new static();`.
 * Fixed issues with retrieving types in call stacks including static access, such as `self::$property->foo`.
 * Fixed built-in methods and functions having class types as parameters not being properly indexed. Instead, a PHP object would be returned in the parameter list. (Only applies to PHP 7.)
@@ -23,6 +32,7 @@ moreCode();
 ### Changes for developers
 * Changes to the service
   * Popovers will, by default, no longer catch pointer events (making them click-through).
+  * You can now listen to indexing succeeding or failing using `onDidFinishIndexing` and `onDidFailIndexing`. (thanks to [@tocjent](https://github.com/tocjent))
   * The type for parameters of methods will now return the type as it was found in the file. If you wish to access the full resolved class type, you can use the new `fullType` property instead.
   * New methods `getInvokedFunction` and `getInvocationInfoAt` are now available that allow fetching information about the function or method being invoked at a specific position in an editor.
 
