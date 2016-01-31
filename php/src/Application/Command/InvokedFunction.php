@@ -68,7 +68,7 @@ class InvokedFunction extends BaseCommand
 
         $visitor = new InvokedFunction\QueryingVisitor($code, $position);
 
-        $traverser = new NodeTraverser();
+        $traverser = new NodeTraverser(false);
         $traverser->addVisitor($visitor);
         $traverser->traverse($nodes);
 
