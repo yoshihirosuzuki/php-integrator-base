@@ -325,6 +325,42 @@ class Proxy
         )
 
     ###*
+     * Retrieves the scope chain at the specified offset.
+     *
+     * The scope chain contains a list of objects that describe what kind of code is located at the specified location.
+     * This information can be useful to determine how code is nested (for example, a method call that is inside a
+     * method that is in turn inside a class).
+     *
+     * @param {String}      file       The path to the file to examine.
+     * @param {String|null} source     The source code to search. May be null if a file is passed instead.
+     * @param {Number}      offset     The character offset into the file to examine.
+     * @param {bool}        asSelector If set, a single CSS selector-like string will be returned instead of a list of
+     *                                 objects.
+     *
+     * @return {Promise}
+    ###
+    getScopeChain: (file, source, offset, asSelector) ->
+        if not file? and not source?
+            throw 'Either a path to a file or source code must be passed!'
+
+        parameters = ['--scope-chain', '--database=' + @getIndexDatabasePath(), '--offset=' + offset, '--charoffset']
+
+        if file?
+            parameters.push('--file=' + file)
+
+        if source?
+            parameters.push('--stdin')
+
+        if asSelector
+            parameters.push('--as-selector')
+
+        return @performRequest(
+            parameters,
+            null,
+            source
+        )
+
+    ###*
      * Refreshes the specified file or folder. This method is asynchronous and will return immediately.
      *
      * @param {String}      path                   The full path to the file  or folder to refresh.

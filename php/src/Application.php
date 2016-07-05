@@ -40,6 +40,7 @@ class Application
             '--semantic-lint'       => 'SemanticLint',
             '--available-variables' => 'AvailableVariables',
             '--variable-types'      => 'VariableTypes',
+            '--scope-chain'         => 'ScopeChain',
             '--deduce-types'        => 'DeduceTypes'
         ];
 

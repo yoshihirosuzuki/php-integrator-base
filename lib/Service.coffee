@@ -160,6 +160,24 @@ class Service
         return @proxy.deduceTypes(parts, file, source, offset)
 
     ###*
+     * Retrieves the scope chain at the specified offset.
+     *
+     * The scope chain contains a list of objects that describe what kind of code is located at the specified location.
+     * This information can be useful to determine how code is nested (for example, a method call that is inside a
+     * method that is in turn inside a class).
+     *
+     * @param {String}      file       The path to the file to examine.
+     * @param {String|null} source     The source code to search. May be null if a file is passed instead.
+     * @param {Number}      offset     The character offset into the file to examine.
+     * @param {bool}        asSelector If set, a single CSS selector-like string will be returned instead of a list of
+     *                                 objects.
+     *
+     * @return {Promise}
+    ###
+    getScopeChain: (file, source, offset, asSelector) ->
+        return @proxy.getScopeChain(file, source, offset, asSelector)
+
+    ###*
      * Refreshes the specified file or folder. This method is asynchronous and will return immediately.
      *
      * @param {String}      path                   The full path to the file  or folder to refresh.
@@ -314,6 +332,23 @@ class Service
         offset = editor.getBuffer().characterIndexForPosition(bufferPosition)
 
         return @deduceTypes(callStack, editor.getPath(), bufferText, offset)
+
+    ###*
+     * Convenience wrapper for getScopeChain.
+     *
+     * @param {TextEditor} editor         The text editor to use.
+     * @param {Point}      bufferPosition The buffer position to examine.
+     * @param {bool}       asSelector     If set, a single CSS selector-like string will be returned instead of a list
+     *                                    of objects.
+     *
+     * @return {Promise}
+    ###
+    getScopeChainAt: (editor, bufferPosition, asSelector) ->
+        bufferText = editor.getBuffer().getText()
+
+        offset = editor.getBuffer().characterIndexForPosition(bufferPosition)
+
+        return @getScopeChain(editor.getPath(), bufferText, offset, asSelector)
 
     ###*
      * Retrieves the call stack of the function or method that is being invoked at the specified position. This can be

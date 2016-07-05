@@ -132,6 +132,14 @@ class CachingProxy extends Proxy
     ###*
      * @inherited
     ###
+    getScopeChain: (file, source, offset, asSelector) ->
+        sourceKey = if source? then md5(source) else null
+
+        return @wrapCachedRequestToParent("getScopeChain-#{file}-#{sourceKey}-#{offset}-#{asSelector}", 'getScopeChain', arguments)
+
+    ###*
+     * @inherited
+    ###
     reindex: (path, source, progressStreamCallback) ->
         return super(path, source, progressStreamCallback).then (output) =>
             @clearCache()
