@@ -248,9 +248,10 @@ abstract class Command implements CommandInterface
      */
     protected function outputJson($success, $data)
     {
-        return json_encode([
+        $json = json_encode([
             'success' => $success,
             'result'  => $data
         ]);
+        return ($json === false) ? '{}' : $json;
     }
 }
